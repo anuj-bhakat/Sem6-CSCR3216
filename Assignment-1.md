@@ -219,168 +219,26 @@ app.js
 
 # index.html
 
-``` html
-<!DOCTYPE html>
-<html>
-<head>
-  <title>CryptoTracker</title>
-  <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-  <h1>CryptoTracker</h1>
-
-  <input type="text" id="search-input" placeholder="Search crypto (e.g., bitcoin)">
-  <button id="search-btn">Search</button>
-
-  <h2>Results</h2>
-  <div id="results"></div>
-
-  <h2>Favorites</h2>
-  <div id="favorites"></div>
-
-  <script src="app.js"></script>
-</body>
-</html>
-```
+The HTML structure has been created in [`index.html`](index.html) with the CryptoTracker interface.
 
 ------------------------------------------------------------------------
 
 # style.css
 
-``` css
-body {
-  font-family: Arial, sans-serif;
-  padding: 20px;
-}
-
-.card {
-  border: 1px solid #ddd;
-  padding: 15px;
-  margin-bottom: 10px;
-  border-radius: 6px;
-}
-
-button {
-  padding: 6px 10px;
-  cursor: pointer;
-}
-```
+The styling has been created in [`style.css`](style.css).
 
 ------------------------------------------------------------------------
 
 # app.js
 
-``` javascript
-// DOM Cache
-const dom = {
-  input: document.querySelector('#search-input'),
-  btn: document.querySelector('#search-btn'),
-  results: document.querySelector('#results'),
-  favorites: document.querySelector('#favorites')
-};
+The JavaScript logic has been created in [`app.js`](app.js) with the following features:
 
-// State Initialization
-let state = {
-  favorites: JSON.parse(localStorage.getItem('crypto_favs')) || []
-};
-
-// Save to LocalStorage
-const saveState = () => {
-  localStorage.setItem('crypto_favs', JSON.stringify(state.favorites));
-};
-
-// Render Favorites
-const renderFavorites = () => {
-  dom.favorites.innerHTML = state.favorites.map(coin => `
-    <div class="card">
-      <strong>${coin.name}</strong> - $${coin.price}
-      <button onclick="removeFavorite('${coin.id}')">Remove</button>
-    </div>
-  `).join('');
-};
-
-// Add Favorite
-const addFavorite = (coin) => {
-  const exists = state.favorites.some(f => f.id === coin.id);
-  if (!exists) {
-    state.favorites.push(coin);
-    saveState();
-    renderFavorites();
-  } else {
-    alert("Already added!");
-  }
-};
-
-// Remove Favorite
-const removeFavorite = (id) => {
-  state.favorites = state.favorites.filter(f => f.id !== id);
-  saveState();
-  renderFavorites();
-};
-
-window.removeFavorite = removeFavorite;
-
-// Render Results
-const renderResults = (coins) => {
-  dom.results.innerHTML = coins.map(coin => `
-    <div class="card">
-      <strong>${coin.name}</strong> 
-      <p>Price: $${coin.current_price}</p>
-      <button onclick='addFavorite({
-        id: "${coin.id}", 
-        name: "${coin.name}", 
-        price: "${coin.current_price}"
-      })'>Add to Favorites</button>
-    </div>
-  `).join('');
-};
-
-window.addFavorite = addFavorite;
-
-// Search Logic
-const searchCrypto = async () => {
-  const query = dom.input.value.trim().toLowerCase();
-  if (!query) return;
-
-  dom.results.innerHTML = "<p>Loading...</p>";
-
-  try {
-    const response = await fetch(
-      "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd"
-    );
-
-    if (!response.ok) throw new Error("API Error");
-
-    const data = await response.json();
-
-    const filtered = data.filter(coin =>
-      coin.name.toLowerCase().includes(query)
-    );
-
-    if (filtered.length === 0) {
-      dom.results.innerHTML = "<p>No coins found.</p>";
-      return;
-    }
-
-    renderResults(filtered.slice(0, 10));
-
-  } catch (error) {
-    console.error(error);
-    dom.results.innerHTML = 
-      "<p>Network error. Please try again later.</p>";
-  }
-};
-
-// Event Listeners
-dom.btn.addEventListener('click', searchCrypto);
-dom.input.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') searchCrypto();
-});
-
-// Initialize
-renderFavorites();
-```
+- DOM cache for efficient element selection
+- State management with LocalStorage persistence
+- Favorites functionality (add/remove)
+- Async API calls to CoinGecko
+- Search with filtering
+- Error handling
 
 ------------------------------------------------------------------------
 
